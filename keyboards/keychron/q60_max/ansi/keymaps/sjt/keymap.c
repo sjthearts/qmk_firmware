@@ -65,10 +65,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+// set light mode to solid_color, black
 void keyboard_post_init_user(void) {
     // debug_enable=true;
-    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
-    rgb_matrix_sethsv_noeeprom(HSV_OFF);
+    // rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
+    // rgb_matrix_sethsv_noeeprom(HSV_OFF);
 }
 
 // a LED group (ie. "arrows", "volume")
@@ -78,6 +79,7 @@ typedef struct {
     rgb_led_t color;  // color of group
 } led_group_t;
 
+// group definitions
 const led_group_t led_list_arrows        = {4, {17,30,31,32}, {RGB_RED}};
 const led_group_t led_list_mouse_arrows  = {4, {20,33,34,35}, {RGB_BLUE}};
 const led_group_t led_list_mouse_buttons = {2, {19,21},       {RGB_YELLOW}};
@@ -112,6 +114,6 @@ bool rgb_matrix_indicators_user(void) {
             }
         }
     }
-    return false;
+    return true;
 }
 
