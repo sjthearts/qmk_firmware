@@ -42,20 +42,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 // a LED group (ie. "arrows", "volume")
 typedef struct {
-    uint8_t num;      // num leds in group
-    uint8_t leds[16];  // group max sz 8
-    rgb_led_t color;  // color of group
+    uint8_t num;       // num leds in group
+    uint8_t leds[16];  // group max sz 16
+    rgb_led_t color;   // color of group
 } led_group_t;
 
 // group definitions FN
-const led_group_t led_list_fn            = {12, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, {RGB_RED}};
-const led_group_t led_list_insdel        = {2,  {13, 28},                                {RGB_GREEN}};
-const led_group_t led_list_arrows_fn     = {4,  {26, 39, 40, 52},                        {RGB_YELLOW}};
-const led_group_t led_list_page          = {7,  {23, 24, 25, 37, 38, 50, 51},            {RGB_PURPLE}};
-const led_group_t led_list_rgb           = {9,  {29, 30, 31, 32, 33, 43, 44, 45, 46},    {RGB_CYAN}};
-const led_group_t led_list_batnk         = {2,  {47, 48},                                {RGB_GREEN}};
-const led_group_t led_list_bluetooth     = {4,  {16, 17, 18, 19},                        {RGB_BLUE}};
-const led_group_t led_list_eeprom        = {1,  {14},                                    {RGB_WHITE}};
+const led_group_t led_list_fn        = {12, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, {RGB_RED}};
+const led_group_t led_list_insdel    = {2,  {13, 28},                                {RGB_GREEN}};
+const led_group_t led_list_arrows_fn = {4,  {26, 39, 40, 52},                        {RGB_YELLOW}};
+const led_group_t led_list_page      = {7,  {23, 24, 25, 37, 38, 50, 51},            {RGB_MAGENTA}};
+const led_group_t led_list_rgb       = {9,  {29, 30, 31, 32, 33, 43, 44, 45, 46},    {RGB_CYAN}};
+const led_group_t led_list_batnk     = {2,  {47, 48},                                {RGB_GREEN}};
+const led_group_t led_list_bluetooth = {4,  {16, 17, 18, 19},                        {RGB_BLUE}};
+const led_group_t led_list_eeprom    = {1,  {14},                                    {RGB_WHITE}};
 
 led_group_t led_groups_fn[] = { led_list_fn, led_list_insdel,
                                 led_list_arrows_fn, led_list_page,
@@ -68,7 +68,7 @@ const led_group_t led_list_mouse_arrows  = {4, {20, 33, 34, 35}, {RGB_BLUE}};
 const led_group_t led_list_mouse_buttons = {2, {19, 21},         {RGB_YELLOW}};
 const led_group_t led_list_vol           = {3, {0, 1, 2},        {RGB_GREEN}};
 const led_group_t led_list_mac           = {2, {13, 14},         {RGB_CYAN}};
-const led_group_t led_list_media         = {3, {3, 4, 5},        {RGB_PURPLE}};
+const led_group_t led_list_media         = {3, {3, 4, 5},        {RGB_MAGENTA}};
 
 led_group_t led_groups_l2[] = { led_list_arrows_l2, led_list_mouse_arrows, 
                                 led_list_mouse_buttons, led_list_vol,
@@ -88,8 +88,8 @@ void paint_layer(led_group_t *groups, uint8_t num_groups) {
     for (i = 0; i < num_groups; i++) {
         for (j = 0; j < groups[i].num; j++) {
             rgb_matrix_set_color(groups[i].leds[j],
-                                 groups[i].color.r,
                                  groups[i].color.g,
+                                 groups[i].color.r,
                                  groups[i].color.b);
         }
     }
