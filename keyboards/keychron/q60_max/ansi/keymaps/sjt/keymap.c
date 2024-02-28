@@ -8,6 +8,7 @@ enum layers {
     FN,
     L2
 };
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [MAC_BASE] = LAYOUT_ansi_60(
@@ -40,6 +41,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
+/*mouse jiggler **************************************************************/
+
+bool jiggle_enabled = false;
+bool jiggle_direction = false;
+uint16_t jiggle_freq = 55000; // 55 seconds
+uint16_t jiggle_timer = 0;
+
+bool dip_switch_update_user(uint8_t index, bool active) {
+    if (index == 0) {
+        jiggle_enabled = active;
+    }
+    return true;
+}
+
+void housekeeping_task_user(void) {
+    static uint16_t count = 0;
+
+    if (jiggle_timer == 0) jiggle_timer = timer_read();
+
+    if (jiggle_enabled && (++count == 15000)) {
+        count = 0;
+        if (timer_elapsed(jiggle_timer) > jiggle_freq) {
+            jiggle_timer = timer_read();
+            if (jiggle_direction) {
+                tap_code(KC_MS_LEFT);
+            } else {
+                tap_code(KC_MS_RIGHT);
+            }
+            jiggle_direction = !jiggle_direction;
+        }
+    }
+}
+
+/*Layer lights****************************************************************/
+
 // a LED group (ie. "arrows", "volume")
 typedef struct {
     uint8_t num;       // num leds in group
@@ -52,8 +88,8 @@ const led_group_t led_list_fn        = {12, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 
 const led_group_t led_list_insdel    = {2,  {13, 28},                                {RGB_GREEN}};
 const led_group_t led_list_arrows_fn = {4,  {26, 39, 40, 52},                        {RGB_YELLOW}};
 const led_group_t led_list_page      = {7,  {23, 24, 25, 37, 38, 50, 51},            {RGB_MAGENTA}};
-const led_group_t led_list_rgb       = {9,  {29, 30, 31, 32, 33, 43, 44, 45, 46},    {RGB_CYAN}};
-const led_group_t led_list_batnk     = {2,  {47, 48},                                {RGB_GREEN}};
+const led_group_t led_list_rgb       = {9,  {29, 30, 31, 32, 33, 43, 44, 45, 46},    {RGB_GREEN}};
+const led_group_t led_list_batnk     = {2,  {47, 48},                                {RGB_CYAN}};
 const led_group_t led_list_bluetooth = {4,  {16, 17, 18, 19},                        {RGB_BLUE}};
 const led_group_t led_list_eeprom    = {1,  {14},                                    {RGB_WHITE}};
 
@@ -74,6 +110,19 @@ led_group_t led_groups_l2[] = { led_list_arrows_l2, led_list_mouse_arrows,
                                 led_list_mouse_buttons, led_list_vol,
                                 led_list_mac, led_list_media };
 
+// mouse jiggler handled separately in FN layer
+const led_group_t led_list_msjig_on  = {1,  {0}, {RGB_GREEN}};
+const led_group_t led_list_msjig_off = {1,  {0}, {RGB_RED}};
+
+void paint_group(led_group_t group) {
+    for (uint8_t j = 0; j < group.num; j++) {
+        rgb_matrix_set_color(group.leds[j],
+                             group.color.g,
+                             group.color.r,
+                             group.color.b);
+    }
+}
+
 void paint_layer(led_group_t *groups, uint8_t num_groups) {
     uint8_t i,j;
 
@@ -86,12 +135,7 @@ void paint_layer(led_group_t *groups, uint8_t num_groups) {
 
     // apply color to groups
     for (i = 0; i < num_groups; i++) {
-        for (j = 0; j < groups[i].num; j++) {
-            rgb_matrix_set_color(groups[i].leds[j],
-                                 groups[i].color.g,
-                                 groups[i].color.r,
-                                 groups[i].color.b);
-        }
+        paint_group(groups[i]);
     }
 }
 
@@ -100,6 +144,14 @@ bool rgb_matrix_indicators_user(void) {
     switch (get_highest_layer(layer_state)) {
     case FN:
         paint_layer(led_groups_fn, ARRAY_SIZE(led_groups_fn));
+
+        if (jiggle_enabled) {
+            paint_group(led_list_msjig_on);
+        }
+        else {
+            paint_group(led_list_msjig_off);
+        }
+
         break;
     case L2:
         paint_layer(led_groups_l2, ARRAY_SIZE(led_groups_l2));
