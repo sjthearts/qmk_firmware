@@ -5,6 +5,10 @@
 .DS_Store
 ._*
 
+# cscope
+cscope.files
+cscope.out
+
 # Merge files
 *.orig
 *.rej
