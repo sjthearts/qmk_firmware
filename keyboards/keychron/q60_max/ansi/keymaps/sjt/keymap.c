@@ -45,7 +45,7 @@ process_record_user(uint16_t keycode, keyrecord_t *record) {
 /*mouse jiggler **************************************************************/
 
 bool jiggle_enabled = false;
-uint16_t jiggle_freq = 55000; // 55 seconds
+uint16_t jiggle_freq = 60000; // 60 seconds
 uint16_t jiggle_timer = 0;
 
 bool
@@ -58,18 +58,23 @@ dip_switch_update_user(uint8_t index, bool active) {
 }
 
 void
-housekeeping_task_user(void) {
-    static uint16_t count = 0;
-
+test_jiggle(void) {
     if (jiggle_enabled) {
-        if (++count == 15000) {  // no need to test timer 1000 times a second
-            count = 0;
-            if (timer_elapsed(jiggle_timer) > jiggle_freq) {
-                jiggle_timer = timer_read();
-                tap_code(KC_RSFT); // tap shift key
-            }
+        if (timer_elapsed(jiggle_timer) > jiggle_freq) {
+            jiggle_timer = timer_read();
+            tap_code(KC_RSFT); // tap shift key
         }
     }
+}
+
+void
+housekeeping_task_user(void) {
+    test_jiggle();
+}
+
+void
+suspend_power_down_user(void) {
+    test_jiggle();    
 }
 
 /*Layer lights****************************************************************/
